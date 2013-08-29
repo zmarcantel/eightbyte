@@ -1,0 +1,15 @@
+{
+  "name": "eightbyte",
+  "version": "0.0.1",
+  "author": "Zachary Marcantel <zmarcantel@gmail.com>",
+  "description": "Precise 64bit integer operations for Javascript",
+  "main": "./index.js",
+  "devDependencies": {
+    "mocha"     :  ">0",
+    "should"    :  ">0"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">0"
+  }
+}
