@@ -6,6 +6,7 @@ Javascript does not contain 64 bit operations....
 Instead, the standard complies to a 64 bit floating point representation that gives 58 bits of precision in integers.
 
 The functions include:
+  * `make(string)`    :: Create long from hex string (0x optional)
   * `and(a, b)`       :: Logical AND
   * `or(a, b)`        :: Logical OR
   * `xor(a, b)`       :: Logical XOR
@@ -20,6 +21,17 @@ The functions include:
 
 ````js
 var long = require('eightbyte');
+
+var valid = long.make('0xDEADBEEF01010101').eql(long.make('DEADBEEF01010101'));
+
+var anded = long.and([0x00, 0x01], [0x01, 0x00]),
+    anded_hex = anded.hex();
+
+var ored = long.or([0x00, 0x01], [0x01, 0x00]),
+    ored_hex = ored.hex();
+
+var xored = long.xor([0x00, 0x01], [0x01, 0x00]),
+    xored_hex = xored.hex();
 
 var added = long.add([0xAABBCCDD, 0x0011FFEE], [0x00112233, 0x44556677]),
     added_hex = added.hex();

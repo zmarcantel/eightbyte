@@ -5,6 +5,14 @@
     version: "0.0.1"
   };
 
+  eightbyte.make = function(string) {
+    if (string.length > 18) { throw new Error('Hex string too long'); }
+    var start_index = 0;
+    if (string.charAt(0) == '0' && string.charAt(1) == 'x') { start_index = 2; }
+    var lower = string.slice(-8);
+    var upper = string.slice(start_index, -8);
+    return [parseInt(upper, 16), parseInt(lower, 16)];
+  }
 
   //-----------------------------------------------------------------
   //

@@ -1,6 +1,26 @@
 var should = require('should'),
     long = require('../');
 
+describe('Creation', function() {
+  describe('Hex String', function() {
+    it('"0xAABBCCDDEEFF0011" -> 0xAABBCCDDEEFF0011', function() {
+      long.make("0xAABBCCDDEEFF0011").should.eql([0xAABBCCDD, 0xEEFF0011]);
+    });
+
+    it('"AABBCCDDEEFF0011" -> 0xAABBCCDDEEFF0011', function() {
+      long.make("AABBCCDDEEFF0011").should.eql([0xAABBCCDD, 0xEEFF0011]);
+    });
+
+    it('"0xDEADBEEF01010101" -> 0xDEADBEEF01010101', function() {
+      long.make("0xDEADBEEF01010101").should.eql([0xDEADBEEF, 0x01010101]);
+    });
+
+    it('"DEADBEEF01010101" -> 0xDEADBEEF01010101', function() {
+      long.make("DEADBEEF01010101").should.eql([0xDEADBEEF, 0x01010101]);
+    });
+  });
+});
+
 describe('Binary Functions', function() {
   describe('AND', function() {
     it('0xAABBCCDD00000000 & 0xAABBCCDD00000000 -> 0xAABBCCDD00000000', function() {
