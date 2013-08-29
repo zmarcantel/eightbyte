@@ -12,8 +12,19 @@
   //
   //-----------------------------------------------------------------
 
-  eightbyte.rotl = function(number, bits)
-  {
+  eightbyte.and = function(a, b) {
+    return [(a[0] & b[0]) >>> 0, (a[1] & b[1]) >>> 0];
+  }
+
+  eightbyte.xor = function(a, b) {
+    return [(a[0] ^ b[0]) >>> 0, (a[1] ^ b[1]) >>> 0];
+  }
+
+  eightbyte.or = function(a, b) {
+    return [(a[0] | b[0]) >>> 0, (a[1] | b[1]) >>> 0];
+  }
+
+  eightbyte.rotl = function(number, bits) {
     if (number[0] == 0 && number[1] == 0)
       return number;
 
@@ -29,8 +40,7 @@
     return [high, low];
   }
 
-  eightbyte.rotr = function(number, bits)
-  {
+  eightbyte.rotr = function(number, bits) {
     if (number[0] == 0 && number[1] == 0)
       return number;
 
@@ -46,8 +56,7 @@
     return [high, low];
   }
 
-  eightbyte.shiftl = function(number, bits)
-  {
+  eightbyte.shiftl = function(number, bits) {
     var data = number;
 
     if (number[0] == 0 && number[1] == 0)
@@ -72,8 +81,7 @@
     return [high, low];
   }
 
-  eightbyte.shiftr = function(number, bits)
-  {
+  eightbyte.shiftr = function(number, bits) {
     var data = number;
 
     if (number[0] == 0 && number[1] == 0)
@@ -98,14 +106,8 @@
     return [high, low];
   }
 
-  eightbyte.xor64 = function(a, b)
-  {
-    return [(a[0] ^ b[0]) >>> 0, (a[1] ^ b[1]) >>> 0];
-  }
 
-
-  eightbyte.add = function(a, b)
-  {
+  eightbyte.add = function(a, b) {
     if (a[0] == 0 && a[1] == 0) return b;
     if (b[0] == 0 && b[1] == 0) return a;
 
@@ -117,8 +119,7 @@
   }
 
 
-  eightbyte.multiply = function(a, b)
-  {
+  eightbyte.multiply = function(a, b) {
     a = [a[0] >>> 16, a[0] & 0xffff, a[1] >>> 16, a[1] & 0xffff];
     b = [b[0] >>> 16, b[0] & 0xffff, b[1] >>> 16, b[1] & 0xffff];
     var o = [0, 0, 0, 0];
@@ -159,8 +160,7 @@
     return result;
   }
 
-  eightbyte.hex = function()
-  {
+  eightbyte.hex = function() {
     return this.hash_raw[0].toString(16) + '' + 
            this.hash_raw[1].toString(16) + '' + 
            this.hash_raw[2].toString(16) + '' + 

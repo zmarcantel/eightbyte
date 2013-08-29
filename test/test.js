@@ -2,6 +2,47 @@ var should = require('should'),
     long = require('../');
 
 describe('Binary Functions', function() {
+  describe('AND', function() {
+    it('0xAABBCCDD00000000 & 0xAABBCCDD00000000 -> 0xAABBCCDD00000000', function() {
+      var result = long.and([0xAABBCCDD, 0], [0xAABBCCDD, 0]);
+      result.should.eql([0xAABBCCDD, 0]);
+    });
+
+    it('0xAABBCCDD00000000 & 0x00000000AABBCCDD -> 0x0000000000000000', function() {
+      var result = long.and([0xAABBCCDD, 0], [0, 0xAABBCCDD]);
+      result.should.eql([0, 0]);
+    });
+
+    it('0xAABBCCDDEEFF0011 & 0x0F0F0F0F0F0F0F0F -> 0x0A0B0C0D0E0F0001', function() {
+      var result = long.and([0xAABBCCDD, 0xEEFF0011], [0x0F0F0F0F, 0x0F0F0F0F]);
+      result.should.eql([0x0A0B0C0D, 0x0E0F0001]);
+    });
+  });
+
+  describe('OR', function() {
+    it('0xAABBCCDDEEFF0011 OR 0x0F0F0F0F0F0F0F0F -> 0xAFBFCFDFEFFF0F1F', function() {
+      var result = long.or([0xAABBCCDD, 0xEEFF0011], [0x0F0F0F0F, 0x0F0F0F0F]);
+      result.should.eql([0xAFBFCFDF, 0xEFFF0F1F]);
+    });
+
+    it('0x0A0B0C0D0E0F0001 OR 0xA0B0C0D0E0F00010 -> 0xAABBCCDDEEFF0011', function() {
+      var result = long.or([0x0A0B0C0D, 0x0E0F0001], [0xA0B0C0D0, 0xE0F00010]);
+      result.should.eql([0xAABBCCDD, 0xEEFF0011]);
+    });
+  });
+
+  describe('XOR', function() {
+    it('0xAABBCCDDEEFF0011 XOR 0x0F0F0F0F0F0F0F0F -> 0xA5B4C3D2E1F00F1E', function() {
+      var result = long.xor([0xAABBCCDD, 0xEEFF0011], [0x0F0F0F0F, 0x0F0F0F0F]);
+      result.should.eql([0xa5b4c3d2, 0xe1f00f1e]);
+    });
+
+    it('0xA0B0C0D0E0F00010 XOR 0x0F0F0F0F0F0F0F0F -> 0xAFBFCFDFEFFF0F1F', function() {
+      var result = long.xor([0xA0B0C0D0, 0xE0F00010], [0x0F0F0F0F, 0x0F0F0F0F]);
+      result.should.eql([0xAFBFCFDF, 0xEFFF0F1F]);
+    });
+  });
+
   describe('Rotate Left', function() {
     it ('0x8000000000000000 rotl 1 -> 1', function() {
       var result = long.rotl([0x80000000, 0], 1);
