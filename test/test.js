@@ -212,4 +212,25 @@ describe('Binary Functions', function() {
       result.should.eql([0xbf5dd, 0x44338623]);
     });
   })
+
+
+  describe('Hex Conversion', function() {
+    it('[0xAABBCCDD, 0xEEFF0011] -> "0xAABBCCDDEEFF0011"', function() {
+      [0xAABBCCDD, 0xEEFF0011].hex().should.equal("0xAABBCCDDEEFF0011");
+    });
+
+    it('[0xEEFF0011, 0xAABBCCDD] -> "0xEEFF0011AABBCCDD"', function() {
+      [0xEEFF0011, 0xAABBCCDD].hex().should.equal("0xEEFF0011AABBCCDD");
+    });
+
+    describe('Error tests', function() {
+      it('Cannot be less than 2 members', function() {
+        [0xAABBCCDD].hex().should.equal("");
+      });
+
+      it('Cannot be more than 2 members', function() {
+        [0xAABBCCDD, 0xAABBCCDD, 0xAABBCCDD].hex().should.equal("");
+      });
+    });
+  });
 })

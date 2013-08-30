@@ -168,11 +168,9 @@
     return result;
   }
 
-  eightbyte.hex = function() {
-    return this.hash_raw[0].toString(16) + '' + 
-           this.hash_raw[1].toString(16) + '' + 
-           this.hash_raw[2].toString(16) + '' + 
-           this.hash_raw[3].toString(16);
+  Array.prototype.hex = function() {
+    if (this.length < 2 || this.length > 2) return '';
+    return '0x' + this[0].toString(16).toUpperCase() + this[1].toString(16).toUpperCase();
   }
 
   module.exports = eightbyte;

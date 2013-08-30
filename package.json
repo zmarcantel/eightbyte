@@ -1,6 +1,6 @@
 {
   "name": "eightbyte",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Zachary Marcantel <zmarcantel@gmail.com>",
   "description": "Precise 64bit integer operations for Javascript",
   "main": "./index.js",
