@@ -170,7 +170,11 @@
 
   Array.prototype.hex = function() {
     if (this.length < 2 || this.length > 2) return '';
-    return '0x' + this[0].toString(16).toUpperCase() + this[1].toString(16).toUpperCase();
+    var high = this[0] > 0 ? this[0].toString(16).toUpperCase() : '';
+    var low = this[1] > 0 ? this[1].toString(16).toUpperCase() : '00000000';
+    for (var i = high.length; i < 8; i++) { high = '0' + high; }
+    for (var m = low.length; m < 8; m++) { low = '0' + low; }
+    return '0x' + high + low;
   }
 
   module.exports = eightbyte;

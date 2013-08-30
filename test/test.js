@@ -118,6 +118,11 @@ describe('Binary Functions', function() {
       var result = long.shiftl([0, 0xAA], 64);
       result.should.eql([0, 0]);
     });
+
+    it('0xEEFF0011 shiftl 16 -> 0x0000EEFF00110000', function() {
+      var result = long.shiftl([0, 0xEEFF0011], 16);
+      result.should.eql([0x0000EEFF, 0x00110000]);
+    });
   })
 
   describe('Shift Right', function() {
