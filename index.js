@@ -127,6 +127,27 @@
   }
 
 
+  eightbyte.subtract = function(a, b) {
+    if (a[0] == 0 && a[1] == 0) return b;
+    if (b[0] == 0 && b[1] == 0) return a;
+
+    var high = a[0];
+    var low = (a[1] - b[1]);
+
+    if (low < 0) {
+      low = 0xFFFFFFFF - (low + high);
+      high = 0xFFFFFFFF - (high + low);
+    }
+
+    high -= b[0];
+
+    if (high < 0) high = 0;
+    if (low < 0) low = 0;
+
+    return [high, low];
+  }
+
+
   eightbyte.multiply = function(a, b) {
     a = [a[0] >>> 16, a[0] & 0xffff, a[1] >>> 16, a[1] & 0xffff];
     b = [b[0] >>> 16, b[0] & 0xffff, b[1] >>> 16, b[1] & 0xffff];

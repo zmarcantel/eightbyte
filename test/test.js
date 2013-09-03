@@ -158,7 +158,7 @@ describe('Binary Functions', function() {
   })
 
 
-  describe('Add 64', function() {
+  describe('Add', function() {
     it ('Simple1', function() {
       var result = long.add([0xAABBCCDD, 0], [0, 0xEEFF0011]);
       result.should.eql([0xAABBCCDD, 0xEEFF0011]);
@@ -188,9 +188,52 @@ describe('Binary Functions', function() {
       var result = long.add([0, 0xFFFFFF00], [0, 0x1FF]);
       result.should.eql([1, 0xff]);
     });
-  })
+  });
 
-  describe('Multiply 64', function() {
+  
+  describe('Subtract', function() {
+    it('1 - 1 == 0', function() {
+      long.subtract([0, 1], [0, 1]).should.eql([0, 0]);
+    });
+
+    it('1 - 0 == 1', function() {
+      long.subtract([0, 1], [0, 0]).should.eql([0, 1]);
+    });
+ 
+    it('0x100000000 - 1 == 0xFFFFFFFF', function() {
+      long.subtract([0x1, 0x0], [0, 1])
+          .should.eql([0, 0xFFFFFFFF]);
+    });
+
+    it('0x100000001 - 1 == 0x100000000', function() {
+      long.subtract([0x1, 0x1], [0, 1])
+          .should.eql([1, 0]);
+    });
+
+    it('0xA00000000 - 0xA00000000 == 0x0', function() {
+      long.subtract([0xA, 0x0], [0xA, 0])
+          .should.eql([0, 0]);
+    });
+
+    it('0xFFFFFFFFFFFFFFFF - 0xFFFFFFFFFFFFFFFF == 0x0', function() {
+      long.subtract([0xFFFFFFFF, 0xFFFFFFFF], [0xFFFFFFFF, 0xFFFFFFFF])
+          .should.eql([0, 0]);
+    });
+
+    it('0xFFFFFFFFFFFFFFFF - 0xFFFFFFFFFFFFFFFE == 0x1', function() {
+      long.subtract([0xFFFFFFFF, 0xFFFFFFFF], [0xFFFFFFFF, 0xFFFFFFFE])
+          .should.eql([0, 1]);
+    });
+
+    it('0xFFFFFFFFFFFFFFFF - 0xEEEEEEEEEEEEEEEE == 0x1111111111111111', function() {
+      long.subtract([0xFFFFFFFF, 0xFFFFFFFF], [0xEEEEEEEE, 0xEEEEEEEE])
+          .should.eql([0x11111111, 0x11111111]);
+    });
+
+  });
+  
+
+  describe('Multiply', function() {
     it ('Simple', function() {
       var result = long.multiply([0, 0xFFFFFFFF], [0, 2]);
       result.should.eql([1, 0xFFFFFFFE >> 0]);
