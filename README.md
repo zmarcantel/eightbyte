@@ -11,7 +11,7 @@ The functions include:
   * `or(b)`           :: Logical OR
   * `xor(b)`          :: Logical XOR
   * `add(b)`          :: Addition
-  * `subtract(b)      :: Subtraction
+  * `subtract(b)`     :: Subtraction
   * `multiply(b)`     :: Multiplication
   * `divide(b)`       :: Division -> {quotient:x, remainder: y}
   * `shiftr(bits)`    :: Shift right
