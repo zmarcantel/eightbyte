@@ -21,6 +21,52 @@ describe('Creation', function() {
   });
 });
 
+describe('Basic Functions', function() {
+  describe('Greater Than', function() {
+    it('0x1 > 0x0 == true', function() { [0,1].gt([0,0]).should.equal(true) });
+    it('0x10 > 0x1 == true', function() { [0,0x10].gt([0,1]).should.equal(true) });
+    it('0x800 > 0x500 == true', function() { [0,0x800].gt([0,0x500]).should.equal(true) });
+    it('0x500 > 0x800 == false', function() { [0,0x500].gt([0,0x800]).should.equal(false) });
+    it('0x100000000 > 0x80000000 == true', function() { [1,0].gt([0,0x80000000]).should.equal(true) });
+    it('0xAABBCCDDEEFF0011 > 0x00BBCCDDEEFF0011 == true', function() { 
+      [0xAABBCCDD,0xEEFF0011].gt([0xBBCCDD,0xEEFF0011]).should.equal(true) 
+    });
+  });
+
+  describe('Greater Than or Equal', function() {
+    it('0x1 >= 0x0 == true', function() { [0,1].gte([0,0]).should.equal(true) });
+    it('0x10 >= 0x1 == true', function() { [0,0x10].gte([0,1]).should.equal(true) });
+    it('0x500 >= 0x500 == true', function() { [0,0x500].gte([0,0x500]).should.equal(true) });
+    it('0x500 >= 0x800 == false', function() { [0,0x500].gte([0,0x800]).should.equal(false) });
+    it('0x100000000 >= 0x80000000 == true', function() { [1,0].gte([0,0x80000000]).should.equal(true) });
+    it('0xAABBCCDDEEFF0011 >= 0xAABBCCDDEEFF0011 == true', function() { 
+      [0xAABBCCDD,0xEEFF0011].gte([0xAABBCCDD,0xEEFF0011]).should.equal(true) 
+    });
+  });
+
+  describe('Less Than', function() {
+    it('0x1 < 0x0 == false', function() { [0,1].lt([0,0]).should.equal(false) });
+    it('0x1 < 0x10 == true', function() { [0,0x1].lt([0,0x10]).should.equal(true) });
+    it('0x80 < 0x500 == true', function() { [0,0x80].lt([0,0x500]).should.equal(true) });
+    it('0x50 < 0x800 == true', function() { [0,0x50].lt([0,0x800]).should.equal(true) });
+    it('0x100000000 < 0x80000000 == false', function() { [1,0].lt([0,0x80000000]).should.equal(false) });
+    it('0xAABBCCDDEEFF0011 < 0x00BBCCDDEEFF0011 == false', function() { 
+      [0xAABBCCDD,0xEEFF0011].lt([0xBBCCDD,0xEEFF0011]).should.equal(false) 
+    });
+  });
+
+  describe('Less Than or Equal', function() {
+    it('0x1 <= 0x0 == false', function() { [0,1].lte([0,0]).should.equal(false) });
+    it('0x10 <= 0x10 == true', function() { [0,0x10].lte([0,0x10]).should.equal(true) });
+    it('0x80 <= 0x500 == true', function() { [0,0x80].lte([0,0x500]).should.equal(true) });
+    it('0x800 <= 0x800 == true', function() { [0,0x800].lte([0,0x800]).should.equal(true) });
+    it('0x100000000 <= 0x80000000 == false', function() { [1,0].lte([0,0x80000000]).should.equal(false) });
+    it('0xAABBCCDDEEFF0011 <= 0x00BBCCDDEEFF0011 == false', function() { 
+      [0xAABBCCDD,0xEEFF0011].lte([0xBBCCDD,0xEEFF0011]).should.equal(false) 
+    });
+  });
+});
+
 describe('Binary Functions', function() {
   describe('AND', function() {
     it('0xAABBCCDD00000000 & 0xAABBCCDD00000000 -> 0xAABBCCDD00000000', function() {
@@ -155,6 +201,11 @@ describe('Binary Functions', function() {
       var result = [0xAABBCCDD, 0xEEFF0011].shiftr(64);
       result.should.eql([0x00000000, 0x00000000]);
     });
+
+    it ('0xFFFFFFFF00000000 shiftr 32 -> 0x00000000FFFFFFFF', function() {
+      var result = [0xFFFFFFFF, 0].shiftr(32);
+      result.should.eql([0, 0xFFFFFFFF]);
+    });
   })
 
 
@@ -199,6 +250,18 @@ describe('Binary Functions', function() {
     it('1 - 0 == 1', function() {
       [0, 1].subtract([0, 0]).should.eql([0, 1]);
     });
+
+    it('5 - 10 == 0', function() {
+      [0, 5].subtract([0, 10]).should.eql([0,0]);
+    });
+
+    it('0xFFFFFFFF - 0xF == 0xFFFFFFF0', function() {
+      [0, 0xFFFFFFFF].subtract([0, 0xF]).should.eql([0,0xFFFFFFF0]);
+    });
+
+    it('0x00000001 - 0xFF == 0', function() {
+      [0,1].subtract([0, 0xFF]).should.eql([0,0]);
+    });
  
     it('0x100000000 - 1 == 0xFFFFFFFF', function() {
       [0x1, 0x0].subtract([0, 1])
@@ -215,6 +278,16 @@ describe('Binary Functions', function() {
           .should.eql([0, 0]);
     });
 
+    it('0xF00000000 - 0xA00000000 == 0x500000000', function() {
+      [0xF, 0x0].subtract([0xA, 0])
+          .should.eql([0x5, 0]);
+    });
+
+    it('0xFFFFFFFF00000000 - 0x00000000FFFFFFFF == 0xfffffffe00000001', function() {
+      [0xFFFFFFFF, 0].subtract([0, 0xFFFFFFFF])
+          .should.eql([0xfffffffe, 0x00000001]);
+    });
+
     it('0xFFFFFFFFFFFFFFFF - 0xFFFFFFFFFFFFFFFF == 0x0', function() {
       [0xFFFFFFFF, 0xFFFFFFFF].subtract([0xFFFFFFFF, 0xFFFFFFFF])
           .should.eql([0, 0]);
@@ -229,7 +302,6 @@ describe('Binary Functions', function() {
       [0xFFFFFFFF, 0xFFFFFFFF].subtract([0xEEEEEEEE, 0xEEEEEEEE])
           .should.eql([0x11111111, 0x11111111]);
     });
-
   });
   
 
@@ -259,16 +331,201 @@ describe('Binary Functions', function() {
       var result = [0, 0xAABBCCDD].multiply([0, 0x0011EEFF]);
       result.should.eql([0xbf5dd, 0x44338623]);
     });
-  })
+  });
 
+
+  describe('Log2', function() {
+    it('Log2(2) = 1', function() {
+      [0,2].log2().should.equal(1);
+    });
+
+    it('Log2(4) = 2', function() {
+      [0,4].log2().should.equal(2);
+    });
+
+    it('Log2(8) = 3', function() {
+      [0,8].log2().should.equal(3);
+    });
+
+    it('Log2(16) = 4', function() {
+      [0,16].log2().should.equal(4);
+    });
+
+    it('Log2(32) = 5', function() {
+      [0,32].log2().should.equal(5);
+    });
+
+    it('Log2(64) = 6', function() {
+      [0,64].log2().should.equal(6);
+    });
+
+    it('Log2(0xFFFFFFFF) = 32', function() {
+      [0, 0xFFFFFFFF].log2().should.equal(32);
+    });
+
+    it('Log2(0x100000000) = 33', function() {
+      [1,0].log2().should.equal(33);
+    });
+
+    it('Log2(0x500000000) = 35', function() {
+      [5,0].log2().should.equal(35);
+    });
+
+    it('Log2(0x8000000000000000) = 64', function() {
+      [0xFFFFFFFF,0].log2().should.equal(64);
+    });
+
+    it('Log2(0xFF0000000000) = 24', function() {
+      [0xFFFFFFFF,0].log2().should.equal(64);
+    });
+
+    it('Log2(0xFFFFFFFF00000000) = 64', function() {
+      [0xFFFFFFFF,0].log2().should.equal(64);
+    });
+  });
+
+  describe('Division', function() {
+    describe('Powers of Two', function() {
+      it('100 / 2 = 50', function() {
+        [0, 100].divide([0, 2]).should.eql({quotient:[0, 50], remainder:[0,0]});
+      });
+
+      it('[0xAABBCCDD, 0xEEFF0000] / 8 = 0x1557799bbddfe000', function() {
+        [0xAABBCCDD, 0xEEFF0000].divide([0, 8]).quotient.should.eql([0x1557799b, 0xbddfe000]);
+      });
+
+      it('[0x3D0, 0x9000] / 64 = [0xF, 0x4240]', function() {
+        [0, 0x03D09000].divide([0, 64]).quotient.should.eql([0, 0xF4240]);
+      });
+    });
+
+    describe('Over 10', function() {
+      it('100 / 10 == 10', function() {
+        [0,100].divide([0,10]).should.eql({
+          quotient: [0, 10],
+          remainder: [0, 0]
+        });
+      });
+
+      it('125 / 10 == 12 r5', function() {
+        [0,125].divide([0,10]).should.eql({
+          quotient: [0, 12],
+          remainder: [0, 5]
+        });
+      });
+
+      it('250 / 10 == 25', function() {
+        [0,250].divide([0,10]).should.eql({
+          quotient: [0, 25],
+          remainder: [0, 0]
+        });
+      });
+
+      it('0xAABBCCDD / 10 == 0x1112C7AF', function() {
+        [0,0xAABBCCDD].divide([0,10]).should.eql({
+          quotient: [0, 0x1112C7AF],
+          remainder: [0, 7]
+        });
+      });
+
+      it('0xFFFFFFFF / 10 == 0x19999999', function() {
+        [0,0xFFFFFFFF].divide([0,10]).should.eql({
+          quotient: [0, 0x19999999],
+          remainder: [0, 5]
+        });
+      });
+
+      it('0x100000000 / 10 == 0x19999999', function() {
+        [1, 0].divide([0,10]).should.eql({
+          quotient: [0, 0x19999999],
+          remainder: [0, 6]
+        });
+      });
+
+      it('0xAABBCCDDEEFF0011 / 10 == 0x1112C7AFCB198001', function() {
+        [0xAABBCCDD, 0xEEFF0011].divide([0,10]).should.eql({
+          quotient: [0x1112C7AF, 0xCB198001],
+          remainder: [0, 7]
+        });
+      });
+    });
+
+    describe('Non-Powers of Two', function() {
+      it('0xF / 5 = 3', function() {
+        [0, 0xF].divide([0, 5]).should.eql({
+          quotient: [0, 3],
+          remainder: [0,0]
+        });
+      });
+
+      it('100 / 20 = 5', function() {
+        [0, 100].divide([0, 20]).should.eql({
+          quotient: [0, 5],
+          remainder: [0,0]
+        });
+      });
+
+      it('1000 / 10 = 100', function() {
+        [0, 1000].divide([0, 10]).should.eql({
+          quotient: [0, 100],
+          remainder: [0,0]
+        });
+      });
+
+      it('750 / 25 = 30', function() {
+        [0, 750].divide([0, 25]).should.eql({
+          quotient: [0, 30],
+          remainder: [0,0]
+        });
+      });
+
+      it('0x5000 / 0x1000 = 5', function() {
+        [0, 0x5000].divide([0, 0x1000]).should.eql({
+          quotient: [0, 5],
+          remainder: [0,0]
+        });
+      });
+
+      it('0xFFFFFFFF / 0xF = 0x11111111', function() {
+        [0, 0xFFFFFFFF].divide([0, 0xF]).should.eql({
+          quotient: [0, 0x11111111],
+          remainder: [0,0]
+        });
+      });
+
+      it('0xFFFFFFFF00000000 / 0xFF = 0x101010100000000', function() {
+        var result = [0xFFFFFFFF, 0].divide([0, 0xFF]);
+        result.should.eql({
+          quotient: [0x1010101, 0],
+          remainder: [0, 0]
+        });
+      });
+
+      it('0xABABABABABABABAB / 0xABAB = 0x1000100010001', function() {
+        var result = [0xABABABAB, 0xABABABAB].divide([0, 0xABAB]);
+        result.should.eql({
+          quotient: [0x10001, 0x00010001],
+          remainder: [0, 0]
+        });
+      });
+
+      it('0xF0F0F0F0F0F0F0F0 / 0x8 = 0x1E1E1E1E1E1E1E1E', function() {
+        var result = [0xF0F0F0F0, 0xF0F0F0F0].divide([0, 8]);
+        result.should.eql({
+          quotient: [0x1E1E1E1E, 0x1E1E1E1E],
+          remainder: [0, 0]
+        });
+      });
+    });
+  });
 
   describe('Hex Conversion', function() {
     it('[0xAABBCCDD, 0xEEFF0011] -> "0xAABBCCDDEEFF0011"', function() {
-      [0xAABBCCDD, 0xEEFF0011].hex().should.equal("0xAABBCCDDEEFF0011");
+      [0xAABBCCDD, 0xEEFF0011].hex().should.equal("AABBCCDDEEFF0011");
     });
 
     it('[0xEEFF0011, 0xAABBCCDD] -> "0xEEFF0011AABBCCDD"', function() {
-      [0xEEFF0011, 0xAABBCCDD].hex().should.equal("0xEEFF0011AABBCCDD");
+      [0xEEFF0011, 0xAABBCCDD].hex().should.equal("EEFF0011AABBCCDD");
     });
 
     describe('Error tests', function() {
@@ -279,6 +536,54 @@ describe('Binary Functions', function() {
       it('Cannot be more than 2 members', function() {
         [0xAABBCCDD, 0xAABBCCDD, 0xAABBCCDD].hex().should.equal("");
       });
+    });
+  });
+
+
+  describe('String Conversion', function() {
+    it('0x5 -> "5"', function() {
+      [0, 5].string().should.equal("5");
+    });
+
+    it('0xA -> "10"', function() {
+      [0, 0xA].string().should.equal("10");
+    });
+
+    it('0x10 -> "16"', function() {
+      [0, 0x10].string().should.equal("16");
+    });
+
+    it('0x20 -> "32"', function() {
+      [0, 0x20].string().should.equal("32");
+    });
+
+    it('0xAABBCCDD -> "2864434397"', function() {
+      [0, 0xAABBCCDD].string().should.equal("2864434397");
+    });
+
+    it('0xEEFF0011 -> "4009689105"', function() {
+      [0, 0xEEFF0011].string().should.equal("4009689105");
+    });
+
+    it('0xFFFFFFFF -> "4294967295"', function() {
+      [0, 0xFFFFFFFF].string().should.equal("4294967295");
+    });
+
+    it('0x100000000 -> "4294967296"', function() {
+      [1, 0].string().should.equal("4294967296");
+    });
+
+    it('0xF00000000 -> "64424509440"', function() {
+      [0xF, 0].string().should.equal("64424509440");
+    });
+
+    it('0x8000000000000000 -> "9223372036854775808"', function() {
+      [0x80000000, 0].string().should.equal("9223372036854775808");
+    });
+
+    it('[0xAABBCCDD, 0xEEFF0011] -> "12302652060662169617"',function() {
+      [0xAABBCCDD, 0xEEFF0011].string()
+        .should.equal("12302652060662169617");
     });
   });
 })

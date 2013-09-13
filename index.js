@@ -27,7 +27,7 @@
     value:function(b) {
       if (!(this instanceof Array) || !(b instanceof Array) ||
           this.length != 2 || b.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- And';
       }
       return [(this[0] & b[0]) >>> 0, (this[1] & b[1]) >>> 0];
     }
@@ -41,7 +41,7 @@
     value:function(b) {
       if (!(this instanceof Array) || !(b instanceof Array) ||
           this.length != 2 || b.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- XOR';
       }
       return [(this[0] ^ b[0]) >>> 0, (this[1] ^ b[1]) >>> 0];
     }
@@ -55,7 +55,7 @@
     value: function(b) {
       if (!(this instanceof Array) || !(b instanceof Array) ||
           this.length != 2 || b.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- OR';
       }
       return [(this[0] | b[0]) >>> 0, (this[1] | b[1]) >>> 0];
     }
@@ -68,7 +68,7 @@
   Object.defineProperty(Array.prototype, 'rotl', {
     value: function(bits) {
       if (!(this instanceof Array) || this.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- ROTL';
       } else if (bits < 0) {
         throw 'Cannot rotate negative bits.';
       }
@@ -96,7 +96,7 @@
   Object.defineProperty(Array.prototype, 'rotr', {
     value: function(bits) {
       if (!(this instanceof Array) || this.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- ROTR';
       } else if (bits < 0) {
         throw 'Cannot rotate negative bits.';
       }
@@ -124,7 +124,7 @@
   Object.defineProperty(Array.prototype, 'shiftl', {
     value: function(bits) {
       if (!(this instanceof Array) || this.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- Shift Left';
       } else if (bits < 0) {
         throw 'Cannot shift negative bits.';
       }
@@ -161,7 +161,7 @@
   Object.defineProperty(Array.prototype, 'shiftr', {
     value: function(bits) {
       if (!(this instanceof Array) || this.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- Shift Right';
       } else if (bits < 0) {
         throw 'Cannot shift negative bits.';
       }
@@ -204,7 +204,7 @@
     value: function(b) {
       if (!(this instanceof Array) || !(b instanceof Array) ||
           this.length != 2 || b.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- Add';
       }
 
       if (this[0] == 0 && this[1] == 0) return b;
@@ -226,26 +226,25 @@
     value: function(b) {
       if (!(this instanceof Array) || !(b instanceof Array) ||
           this.length != 2 || b.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- Subtract';
       }
 
-      if (this[0] == 0 && this[1] == 0) return b;
+      if (this[0] == 0 && this[1] == 0) return [0, 0];
       if (b[0] == 0 && b[1] == 0) return this;
 
-      var high = this[0];
-      var low = (this[1] - b[1]);
+      var high = 0, low = 0;
+      low = (this[1] - b[1]);
+      high = this[0] - b[0];
 
-      if (low < 0) {
-        low = 0xFFFFFFFF - (low + high);
-        high = 0xFFFFFFFF - (high + low);
+      if ((low >>> 0) > 0xFFFFFFFF || low < 0) {
+        if (this[0] == 0 && low < 0) { return [0, 0]; }
+
+        if (low > 0) high -= low;
+        else if (low == -1) high += low;
+        else high -= (low >>> 0);
       }
 
-      high -= b[0];
-
-      if (high < 0) high = 0;
-      if (low < 0) low = 0;
-
-      return [high, low];
+      return [high >>> 0, low >>> 0];
     }
   });
 
@@ -255,9 +254,9 @@
   //
   Object.defineProperty(Array.prototype, 'multiply', {
     value: function(b) {
-      if (!(this instanceof Array) || !(this instanceof Array) ||
+      if (!(this instanceof Array) || !(b instanceof Array) ||
           this.length != 2 || b.length != 2) {
-        throw 'Malformed Array';
+        throw 'Malformed Array -- Multiply';
       }
 
       var a = [this[0] >>> 16, 
@@ -309,6 +308,170 @@
     }
   });
 
+  //
+  // Divide
+  //
+  Object.defineProperty(Array.prototype, 'divide', {
+    value: function(divisor) {
+      if (!(this instanceof Array) || !(divisor instanceof Array) ||
+          this.length != 2 || divisor.length != 2) {
+        throw 'Malformed Array -- Divide';
+      }
+
+      if (divisor.eql([0,0])) {
+        throw "Divide by Zero";
+      } else if (divisor.gt(this)) {
+        return {quotient: [0,0], remainder: this};
+      } else if (divisor.eql(this)) {
+        return {quotient: [0, 1], remainder: [0,0]};
+      }
+
+
+      // if dividing by a power of two, just shift
+      if( divisor.and(divisor.subtract([0,1])).eql([0,0]) ) {
+        var shift_by = divisor.log2();
+        var result = this.shiftr(shift_by);
+        return { quotient:result, remainder:[0,0] };
+      }
+
+      // if dividing by less than 0xFFFFFFFF, just use integer division
+      if (divisor.log2() <= 32) {
+        var high = (this[0] >>> 0);
+        var low = (this[1] >>> 0);
+        var div = (divisor[1] >>> 0);
+
+        var div_high = Math.floor(high / div);
+
+        var div_low = (low / div);
+        div_low += ((((high % div) * Math.pow(2, 32)) / div));
+
+        var result = [div_high, Math.floor(div_low)];
+        var diff = (((high % div) * (Math.pow(2, 32) % div)) + low) % div;
+
+        return {quotient: result, remainder: [0, diff]};
+      }
+
+      // otherwise shift and subtract
+      var dividend = this.slice();
+      var max_bits = this.log2();
+      var quotient = [0,0], remainder = [0,0], difference = [0,0];
+
+      var i = max_bits;
+      var shifted = [0,0];
+      while (i >= 0 && dividend.gt([0,0])) {
+        if (dividend.gte(divisor)) {
+          quotient = quotient.add([0,1]);
+          dividend = dividend.subtract(divisor);
+        } else {
+          shifted = this.slice().shiftr(--i);
+          dividend = dividend.shiftl(1).or( shifted.and([0,1]) );
+        }
+      }
+
+      return {quotient: quotient, remainder: remainder};
+    }
+  });
+
+  
+  Object.defineProperty(Array.prototype, 'log2', {
+    value: function() {
+      if (!(this instanceof Array) || this.length != 2) {
+        throw 'Malformed Array -- Log2';
+      }
+
+      var v = this.slice();
+      var b = [ [0,0x2], [0,0xC], [0,0xF0], [0,0xFF00], [0,0xFFFF0000], [0xFFFFFFFF, 0] ];
+      var s = [1, 2, 4, 8, 16, 32];
+      var i;
+      
+      var r = [0,0];
+      for (i = 5; i >= 0 && !v.eql([0,0]); i--)
+      {
+        if (v.and(b[i]).gt([0,0]))
+        {
+          v = v.shiftr(s[i]);
+          r = r.or([0,s[i]]);
+        } 
+      }
+
+      return r.gte([0, 31]) ? r.add([0, 1])[1] : r[1];
+    }
+  });
+
+  Object.defineProperty(Array.prototype, 'eql', {
+    value: function(other) {
+      if (!(this instanceof Array) || !(other instanceof Array) ||
+          this.length != 2 || other.length != 2) {
+        throw 'Malformed Array -- Equal';
+      }
+
+      return (this[0] === other[0] && this[1] === other[1]);
+    }
+  });
+
+
+  Object.defineProperty(Array.prototype, 'gt', {
+    value: function(other) {
+      if (!(this instanceof Array) || !(other instanceof Array) ||
+          this.length != 2 || other.length != 2) {
+        throw 'Malformed Array -- Greater Than';
+      }
+
+      return (this[0] > other[0] || (this[1] > other[1] && this[0] >= other[0]));
+    }
+  });
+
+
+  Object.defineProperty(Array.prototype, 'gte', {
+    value: function(other) {
+      if (!(this instanceof Array) || !(other instanceof Array) ||
+          this.length != 2 || other.length != 2) {
+        throw 'Malformed Array -- Greater Than or Equal';
+      }
+
+      if ( this[0] > other[0] ) return true;
+      if ( this[0] == other[0] ) {
+        if ( this[1] >= other[1] ) return true;
+      }
+      return false;
+    }
+  });
+
+
+  Object.defineProperty(Array.prototype, 'lt', {
+    value: function(other) {
+      if (!(this instanceof Array) || !(other instanceof Array) ||
+          this.length != 2 || other.length != 2) {
+        throw 'Malformed Array -- Less Than';
+      }
+
+      return (this[0] < other[0] || (this[1] < other[1] && this[0] <= other[0]));
+    }
+  });
+
+
+  Object.defineProperty(Array.prototype, 'lte', {
+    value: function(other) {
+      if (!(this instanceof Array) || !(other instanceof Array) ||
+          this.length != 2 || other.length != 2) {
+        throw 'Malformed Array -- Less Than or Equal';
+      }
+
+      if ( this[0] < other[0] ) return true;
+      if ( this[0] == other[0] ) {
+        if ( this[1] <= other[1] ) return true;
+      }
+      return false;
+    }
+  });
+
+
+  //-----------------------------------------------------------------
+  //
+  // Formatting Functions
+  //
+  //-----------------------------------------------------------------
+
   Object.defineProperty(Array.prototype, 'hex', {
     value: function() {
       if (this.length < 2 || this.length > 2) return '';
@@ -316,7 +479,25 @@
       var low = this[1] > 0 ? this[1].toString(16).toUpperCase() : '00000000';
       for (var i = high.length; i < 8; i++) { high = '0' + high; }
       for (var m = low.length; m < 8; m++) { low = '0' + low; }
-      return '0x' + high + low;
+      return high + '' + low;
+    }
+  });
+
+
+  Object.defineProperty(Array.prototype, 'string', {
+    value: function() {
+      if (this.length < 2 || this.length > 2) return '';
+
+      var parts = '';
+      var result = '';
+      var iterator = this.slice();
+      while (iterator.gt([0,0])) {
+        parts = iterator.divide([0, 10]);
+        iterator = parts.quotient;
+        result = parseInt(parts.remainder[1], 10) + result;
+      }
+
+      return result;
     }
   });
 
