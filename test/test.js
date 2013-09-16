@@ -3,6 +3,22 @@ var should = require('should'),
 
 describe('Creation', function() {
   describe('Hex String', function() {
+    it('"0xA" -> 0xA', function() {
+      long.make("A").should.eql([0, 0xA]);
+    });
+
+    it('"0xFF" -> 0xFF', function() {
+      long.make("0xFF").should.eql([0, 0xFF]);
+    });
+
+    it('"000FF" -> 0xFF', function() {
+      long.make("000FF").should.eql([0, 0xFF]);
+    });
+
+    it('"749D9A55669A5566" -> 0x749D9A55669A5566', function() {
+      long.make("749D9A55669A5566").should.eql([0x749D9A55, 0x669A5566]);
+    });
+
     it('"0xAABBCCDDEEFF0011" -> 0xAABBCCDDEEFF0011', function() {
       long.make("0xAABBCCDDEEFF0011").should.eql([0xAABBCCDD, 0xEEFF0011]);
     });
